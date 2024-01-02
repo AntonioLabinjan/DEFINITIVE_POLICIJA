@@ -1,1 +1,1 @@
-### Ovo ćemo uredit naknadno; to je najmanje bitan dio
+### Ovo će jednog dana biti lijep i uredan Github README
