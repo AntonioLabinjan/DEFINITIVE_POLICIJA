@@ -239,7 +239,7 @@ CREATE INDEX idx_id_slucaj_sui_slucaj ON Sui_slucaj(id_slucaj);
 
 #TRIGERI
 # 20 Trigera
-# Napiši triger koji će onemogućiti da za slučaj koji u sebi ima određena kaznena djela koristimo psa koji nije zadužen za ta ista djela u slučaju
+# 1. Napiši triger koji će onemogućiti da za slučaj koji u sebi ima određena kaznena djela koristimo psa koji nije zadužen za ta ista djela u slučaju
 	DELIMITER //
 
 CREATE TRIGGER bi_pas_slucaj_KD
@@ -262,7 +262,7 @@ END;
 
 DELIMITER ;
 
-# Iako postoji opcija kaskadnog brisanja u SQL-u, ovdje ćemo u nekim slučajevima pomoću trigera htijeti zabraniti brisanje, pošto je važno da neki podaci ostanu zabilježeni. U iznimnim slučajevima možemo ostavljati obavijest da je neka vrijednost obrisana iz baze. Također, u većini slučajeva nam opcija kaskadnog brisanja nikako ne bi odgovarala, zato što je u radu policije važna kontinuirana evidencija
+# 2. Iako postoji opcija kaskadnog brisanja u SQL-u, ovdje ćemo u nekim slučajevima pomoću trigera htijeti zabraniti brisanje, pošto je važno da neki podaci ostanu zabilježeni. U iznimnim slučajevima možemo ostavljati obavijest da je neka vrijednost obrisana iz baze. Također, u većini slučajeva nam opcija kaskadnog brisanja nikako ne bi odgovarala, zato što je u radu policije važna kontinuirana evidencija
 # Napiši triger koji će a) ako u području uprave više od 5 mjesta, zabraniti brisanje uz obavijest: "Područje uprave s više od 5 mjesta ne smije biti obrisano" b) ako u području uprave ima manje od 5 mjesta, dopustiti da se područje uprave obriše, ali će se onda u mjestima koja referenciraju to područje uprave, pojaviti obavijest "Prvotno područje uprave je obrisano, povežite mjesto s novim područjem"
 DELIMITER //
 CREATE TRIGGER bd_podrucje_uprave
@@ -286,7 +286,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši triger koji će a) spriječiti brisanje osobe ako je ona zaposlenik koji je još u službi (datum izlaska iz službe nije null) uz obavijest:
+# 3. Napiši triger koji će a) spriječiti brisanje osobe ako je ona zaposlenik koji je još u službi (datum izlaska iz službe nije null) uz obavijest:
 # "osoba koju pokušavate obrisati je zaposlenik, prvo ju obrišite iz tablice zaposlenika)" b) obrisati osobu i iz tablice zaposlenika i iz tablice osoba, 
 # ukoliko datum_izlaska_iz_službe ima neku vrijednost što ukazuje da osoba više nije zaposlena
 DELIMITER //
@@ -310,7 +310,7 @@ END;
 DELIMITER ;
 
 
-# Napiši triger koji će, u slučaju da se kažnjivo djelo obriše iz baze, postaviti id_kaznjivo_djelo kod psa na NULL, ukoliko je on prije bio zadužen za upravo to KD koje smo obrisali
+# 4. Napiši triger koji će, u slučaju da se kažnjivo djelo obriše iz baze, postaviti id_kaznjivo_djelo kod psa na NULL, ukoliko je on prije bio zadužen za upravo to KD koje smo obrisali
 DELIMITER //
 CREATE TRIGGER ad_pas
 AFTER DELETE ON Kaznjiva_djela
@@ -323,7 +323,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši triger koji će zabraniti da iz tablice obrišemo predmete koji služe kao dokazi u aktivnim slučajevima (status im nije završeno, te se ne nalaza u arhivi) uz obavijest "Ne možete obrisati dokaze za aktivan slučaj"
+# 5. Napiši triger koji će zabraniti da iz tablice obrišemo predmete koji služe kao dokazi u aktivnim slučajevima (status im nije završeno, te se ne nalaza u arhivi) uz obavijest "Ne možete obrisati dokaze za aktivan slučaj"
 DELIMITER //
 CREATE TRIGGER bd_dokaz
 BEFORE DELETE ON Predmet
@@ -340,7 +340,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši triger koji će zabraniti da iz tablice obrišemo osobe koje su evidentirani kao počinitelji u aktivnim slučajevima
+# 6. Napiši triger koji će zabraniti da iz tablice obrišemo osobe koje su evidentirani kao počinitelji u aktivnim slučajevima
 DELIMITER //
 CREATE TRIGGER bd_osoba_2
 BEFORE DELETE ON Osoba
@@ -357,7 +357,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši triger koji će zabraniti brisanje bilo kojeg izvještaja kreiranog za slučajeve koji nisu završeni (završetak je NULL), ili im je završetak "noviji" od 10 godina (ne smijemo brisati izvještaje za aktivne slučajeve, i za slučajeve koji su završili pred manje od 10 godina)
+# 7. Napiši triger koji će zabraniti brisanje bilo kojeg izvještaja kreiranog za slučajeve koji nisu završeni (završetak je NULL), ili im je završetak "noviji" od 10 godina (ne smijemo brisati izvještaje za aktivne slučajeve, i za slučajeve koji su završili pred manje od 10 godina)
 DELIMITER //
 CREATE TRIGGER bd_izvjestaj
 BEFORE DELETE ON Izvjestaji
@@ -374,7 +374,7 @@ END;
 //
 DELIMITER ;
 
-# Triger koji osigurava da pri unosu spola osobe možemo staviti samo muški ili ženski spol
+# 8. Triger koji osigurava da pri unosu spola osobe možemo staviti samo muški ili ženski spol
 DELIMITER //
 CREATE TRIGGER bi_osoba
 BEFORE INSERT ON Osoba
@@ -398,7 +398,7 @@ END;
 //
 DELIMITER ;
 
-# Triger koji kreira stupac Ukupna_vrijednost_zapljena u tablici slučaj i ažurira ga nakon svake nove unesene zapljene u tom slučaju
+# 9. Triger koji kreira stupac Ukupna_vrijednost_zapljena u tablici slučaj i ažurira ga nakon svake nove unesene zapljene u tom slučaju
 DELIMITER //
 CREATE TRIGGER ai_zapljena
 AFTER INSERT ON Zapljene
@@ -417,7 +417,7 @@ END;
 //
 DELIMITER ;
 
-# Triger koji premješta završene slučajeve iz tablice slučaj u tablicu arhiva
+# 10. Triger koji premješta završene slučajeve iz tablice slučaj u tablicu arhiva
 DELIMITER //
 CREATE TRIGGER au_slucaj_arhiva
 AFTER UPDATE ON Slucaj
@@ -435,7 +435,7 @@ CREATE TEMPORARY TABLE Arhiva(
 id_slucaj FOREIGN KEY REFERENCES slucaj(id)
 	):
 
-# Provjera da osoba nije nadređena sama sebi
+# 11. Provjera da osoba nije nadređena sama sebi
 DELIMITER //
 CREATE TRIGGER bi_zaposlenik
 BEFORE INSERT ON Zaposlenik
@@ -449,7 +449,7 @@ END;
 //
 DELIMITER ;
 
-# Provjera da su datum početka i završetka slučaja različiti i da je datum završetka "veći" od datuma početka
+# 12. Provjera da su datum početka i završetka slučaja različiti i da je datum završetka "veći" od datuma početka
 DELIMITER //
 
 CREATE TRIGGER bi_slucaj
@@ -465,6 +465,7 @@ END;
 DELIMITER ;
 
 
+# 13. Napravi triger koji će umiroviti psa ako je njegova godina rođenja ažurirana na način da je dob psa 10 ili veća
 DELIMITER //
 
 CREATE TRIGGER bu_pas
@@ -480,7 +481,7 @@ END;
 //
 DELIMITER ;
 
-# Napravi triger koji će, u slučaju da je pas časno umirovljen koristeći triger (ili ručno), onemogućiti da ga koristimo u novim slučajevima
+# 14. Napravi triger koji će, u slučaju da je pas časno umirovljen koristeći triger (ili ručno), onemogućiti da ga koristimo u novim slučajevima
 DELIMITER //
 CREATE TRIGGER bi_slucaj_pas
 BEFORE INSERT ON Slucaj
@@ -497,7 +498,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši triger koji će, u slučaju da je osoba mlađa od 18 godina (godina današnjeg datuma - godina rođenja daju broj manji od 18), pri dodavanju te osobe u slučaj dodati poseban stupac s napomenom: Počinitelj je maloljetan - slučaj nije otvoren za javnost
+# 15. Napiši triger koji će, u slučaju da je osoba mlađa od 18 godina (godina današnjeg datuma - godina rođenja daju broj manji od 18), pri dodavanju te osobe u slučaj dodati poseban stupac s napomenom: Počinitelj je maloljetan - slučaj nije otvoren za javnost
 ALTER TABLE Slucaj
 ADD COLUMN Napomena VARCHAR(255);
 
@@ -528,7 +529,7 @@ END //
 
 DELIMITER ;
 
-# Napravi triger koji će onemogućiti da maloljetnik bude vlasnik vozila
+# 16. Napravi triger koji će onemogućiti da maloljetnik bude vlasnik vozila
 DELIMITER //
 CREATE TRIGGER bi_vozilo_punoljetnost
 BEFORE INSERT ON Vozilo FOR EACH ROW
@@ -545,7 +546,7 @@ END;
 DELIMITER ;
 
 
-# Napravi triger koji će u slučaju da postavljamo status slučaja na završeno, postaviti datum završetka na današnji ako mi eksplicitno ne navedemo neki drugi datum, ali će dozvoliti da ga izmjenimo ako želimo
+# 17. Napravi triger koji će u slučaju da postavljamo status slučaja na završeno, postaviti datum završetka na današnji ako mi eksplicitno ne navedemo neki drugi datum, ali će dozvoliti da ga izmjenimo ako želimo
 DELIMITER //
 
 CREATE TRIGGER bu_slucaj
@@ -560,7 +561,7 @@ END;
 DELIMITER ;
 
 
--- Triger koji će prije unosa provjeravati jesu li u slučaju počinitelj i svjedok različite osobe. 
+-- 18. Triger koji će prije unosa provjeravati jesu li u slučaju počinitelj i svjedok različite osobe. 
 
 DELIMITER //
 CREATE TRIGGER bi_slucaj
@@ -576,7 +577,7 @@ END IF;
 END//
 DELIMITER ;
  
--- Triger koji provjerava je li email dobre strukture
+-- 19. Triger koji provjerava je li email dobre strukture
 DELIMITER //
 CREATE TRIGGER bi_osoba
 BEFORE INSERT ON osoba
@@ -589,7 +590,7 @@ END IF;
 END//
 DELIMITER ;
 
--- Triger koji će ograničiti da isti zaposlenik ne smije istovremeno voditi više od 5 aktivnih slučajeva kako ne bi bio preopterećen
+-- 20. Triger koji će ograničiti da isti zaposlenik ne smije istovremeno voditi više od 5 aktivnih slučajeva kako ne bi bio preopterećen
 DELIMITER //
 
 CREATE TRIGGER Ogranicenje_broja_slucajeva
@@ -613,150 +614,175 @@ END //
 # UPITI
 
  
--- Ispiši prosječan broj godina osoba koje su prijavile digitalno nasilje. 
-
+# 1. Ispiši prosječan broj godina osoba koje su prijavile digitalno nasilje
 
 SELECT AVG(YEAR(S.pocetak)-YEAR(O.datum_rodenja)) AS prosjecan_broj_godina
-FROM slucaj S INNER JOIN osoba O ON S.id_izvjestitelj=O.id
-WHERE S.naziv LIKE '%digitalno nasilje%';
-
--- Prikaži osobu čiji je nestanak posljednji prijavljen
-
-SELECT osoba.*
-FROM osoba INNER JOIN slucaj ON osoba.id=slucaj.id_ostecenik
-WHERE slucaj.naziv LIKE '%nestanak%'
-ORDER BY slucaj.pocetak DESC
-LIMIT 1;
-
--- Prikaži najčešću vrstu kažnjivog djela
-
-SELECT kaznjiva_djela.*
-FROM kaznjiva_djela KD INNER JOIN kaznjiva_djela_u_slucaju KS 
-ON KS.id_kaznjivo_djelo = KD.id
-GROUP BY kaznjiva_djela.id
-ORDER BY COUNT(*)
-LIMIT 1;
+	FROM Slucaj S
+	INNER JOIN Osoba O ON S.id_izvjestitelj = O.id
+	WHERE S.naziv LIKE '%Digitalno nasilje%';
 
 
-# Ispišimo sve voditelje slučajeva i slučajeve koje vode
-SELECT O.Ime_Prezime, S.Naziv AS 'Naziv slučaja'
-FROM Zaposlenik Z
-JOIN Osoba O ON Z.id_osoba = O.Id
-JOIN Slucaj S ON Z.Id = S.id_voditelj;
+# 2. Prikaži osobu čiji je nestanak posljednji prijavljen
+
+SELECT O.*
+	FROM Osoba O
+	INNER JOIN Slucaj S ON O.id = S.id_ostecenik
+	WHERE S.naziv LIKE '%Nestanak%'
+	ORDER BY S.pocetak DESC
+	LIMIT 1;
+
+# 3. Prikaži najčešću vrstu kažnjivog djela
+
+SELECT KD.*
+	FROM Kaznjiva_djela KD
+	INNER JOIN Kaznjiva_djela_u_slucaju KDS ON KDS.id_kaznjivo_djelo = KD.id
+	GROUP BY KD.id
+	ORDER BY COUNT(*)
+	LIMIT 1;
 
 
-# Ispišimo slučajeve i evidencije za određenu osobu (osumnjičenika)
-SELECT O.Ime_Prezime, S.Naziv AS 'Naziv slučaja', ED.opis_dogadaja, ED.datum_vrijeme, ED.id_mjesto
-FROM Slucaj S
-JOIN Evidencija_dogadaja ED ON S.Id = ED.id_slucaj
-JOIN Osoba O ON O.Id = S.id_pocinitelj
-WHERE O.Ime_Prezime = 'Ime Prezime';
+# 4. Ispišimo sve voditelje slučajeva i slučajeve koje vode
 
-# Ispišimo sve osobe koje su osumnjičene za određeno KD
-SELECT DISTINCT O.Ime_Prezime
-FROM Osoba O
-JOIN Slucaj S ON O.Id = S.id_pocinitelj
-JOIN Kaznjiva_djela_u_slucaju	KD ON S.Id = KD.id_slucaj
-JOIN Kaznjiva_djela	K ON KD.id_kaznjivo_djelo = K.id
-WHERE K.Naziv = 'Naziv kaznenog djela';
-
-# Pronađimo sve slučajeve koji sadrže KD i nisu riješeni
-SELECT Slucaj.Naziv, Kaznjiva_djela.Naziv AS KaznjivoDjelo
-FROM Slucaj
-INNER JOIN Kaznjiva_djela_u_slucaju	ON Slucaj.ID = Kaznjiva_djela_u_slucaju.id_slucaj
-INNER JOIN Kaznjiva_djela ON 
-Kaznjiva_djela_u_slucaju.id_kaznjivo_djelo= Kaznjiva_djela.id
-WHERE Slucaj.Status = 'Aktivan';
-
-# Izračunajmo iznos zapljene za svaki pojedini slučaj
-SELECT Slucaj.ID, Slucaj.Naziv, SUM(Zapljene.Vrijednost) AS UkupnaVrijednostZapljena
-FROM Slucaj
-LEFT JOIN Zapljene ON Slucaj.ID = Zapljene.id_slucaj
-GROUP BY Slucaj.ID, Slucaj.Naziv;
-
-# Pronađi prosječnu vrijednost zapljene za pojedina kaznena djela
-SELECT K.Naziv AS VrstaKaznenogDjela, AVG(Z.Vrijednost) AS ProsječnaVrijednostZapljene
-FROM Kaznjiva_Djela_u_Slucaju KS
-JOIN Kaznjiva_Djela K ON KS.id_kaznjivo_djelo= K.ID
-JOIN Zapljene Z ON KS.id_slucaj	= Z.id_slucaj
-GROUP BY K.Naziv;
-
-# Pronađi sve odjele i broj zaposlenika na njima
-SELECT O.Naziv AS NazivOdjela, COUNT(Z.Id) AS BrojZaposlenika
-FROM Zaposlenik Z
-JOIN Odjeli O ON Z.id_odjel	 = O.Id
-GROUP BY O.id, O.Naziv;
-
-# Pronađi ukupnu vrijednost zapljena po odjelu i sortiraj ih po vrijednosti silazno
-SELECT Z.id_odjel, SUM(ZP.Vrijednost) AS UkupnaVrijednostZapljena
-FROM Slucaj S
-JOIN Zapljene ZP ON S.Id = ZP.id_slucaj
-JOIN Zaposlenik Z ON S.id_voditelj= Z.Id
-GROUP BY Z.id_odjel
-ORDER BY UkupnaVrijednostZapljena DESC;
+SELECT O.ime_prezime, S.naziv AS naziv_slucaja
+	FROM Zaposlenik Z
+	JOIN Osoba O ON Z.id_osoba = O.id
+	JOIN Slucaj S ON Z.id = S.id_voditelj;
 
 
+# 5. Ispišimo slučajeve i evidencije za određenu osobu (osumnjičenika)
 
-# Pronađi osobu koja mora odslužiti najveću ukupnu zatvorsku kaznu
-SELECT O.Id, O.Ime_Prezime, SUM(KD.Predvidena_kazna) AS Ukupna_kazna
-FROM Osoba O
-INNER JOIN Slucaj S ON O.Id = S.id_pocinitelj
-INNER JOIN Kaznjiva_Djela_u_Slucaju KS ON S.Id = KS.id_slucaj
-INNER JOIN Kaznjiva_Djela KD ON KS.id_kaznjivo_djelo= KD.ID
-WHERE KD.Predvidena_kazna IS NOT NULL
-GROUP BY O.Id, O.Ime_Prezime
-ORDER BY Ukupna_kazna DESC
-LIMIT 1;
+SELECT O.ime_prezime, S.naziv AS naziv_slucaja, ED.opis_dogadaja, ED.datum_vrijeme, ED.id_mjesto
+	FROM Slucaj S
+	JOIN Evidencija_dogadaja ED ON S.id = ED.id_slucaj
+	JOIN Osoba O ON O.id = S.id_pocinitelj
+	WHERE O.ime_prezime = 'Ime Prezime';
 
-# Prikaži sva vozila i u koliko slučajeva su se oni upisali
-SELECT vozilo.*, COUNT(Slucaj.id) AS broj_slucajeva
-FROM Vozilo LEFT OUTER JOIN Osoba ON Vozilo.id_vlasnik = Osoba.id
-INNER JOIN Slucaj ON Osoba.id = Slucaj.id_pocinitelj
-GROUP BY Vozilo.id;
 
-# Mjesto s najviše slučajeva
-SELECT Mjesto.*, COUNT(Evidencija_dogadaja.id) AS kol_slucajeva
-FROM Mjesto INNER JOIN Evidencija_dogadaja ON  Mjesto.id = Evidencija_dogadaja.id_mjesto
-GROUP BY Mjesto.id 
-ORDER BY kol_slucajeva DESC 
-LIMIT 1;
+# 6. Ispišimo sve osobe koje su osumnjičene za određeno KD
 
-# Mjesto s najmanje slučajeva
-SELECT Mjesto.*, COUNT(Evidencija_dogadaja.id) AS kol_slucajeva
-FROM Mjesto INNER JOIN Evidencija_dogadaja ON  Mjesto.id = Evidencija_dogadaja.id_mjesto
-GROUP BY Mjesto.id 
-ORDER BY kol_slucajeva ASC 
-LIMIT 1;
-# Pronađi policijskog službenika koji je vodio najviše slučajeva
-SELECT
-    z.Id AS Zaposlenik_Id,
-    o.Ime_Prezime AS Ime_Prezime,
-    COUNT(s.Id) AS Broj_Slucajeva
-FROM Zaposlenik z
-JOIN Osoba o ON z.id_osoba= o.Id
-LEFT JOIN Slucaj s ON s.id_voditelj = z.Id
-GROUP BY z.Id, o.Ime_Prezime
-HAVING COUNT(s.Id) = (
-    SELECT MAX(Broj_Slucajeva)
-    FROM (
-        SELECT COUNT(Id) AS Broj_Slucajeva
-        FROM Slucaj
-        GROUP BY id_voditelj
-    ) AS Max_voditelj
-);
+SELECT DISTINCT O.ime_prezime
+	FROM Osoba O
+	JOIN Slucaj S ON O.id = S.id_pocinitelj
+	JOIN Kaznjiva_djela_u_slucaju KDS ON S.id = KDS.id_slucaj
+	JOIN Kaznjiva_djela KD ON KDS.id_kaznjivo_djelo = KD.id
+	WHERE KD.naziv = 'Naziv kažnjivog djela';
 
-# Ispiši sva mjesta gdje nema evidentiranih kaznjivih djela u slučajevima(ili uopće nema slučajeva)
-SELECT M.Id, M.Naziv
-FROM Mjesto M
-LEFT JOIN Evidencija_dogadaja ED ON M.Id = ED.id_mjesto
-LEFT JOIN Slucaj S ON ED.id_slucaj= S.Id
-LEFT JOIN Kaznjiva_Djela_u_Slucaju KDS ON S.Id = KDS.id_slucaj
-WHERE KDS.id_slucaj IS NULL OR KDS.id_kaznjivo_djelo IS NULL
-GROUP BY M.Id, M.Naziv;
 
+# 7. Pronađimo sve slučajeve koji sadrže KD i nisu riješeni
+
+SELECT S.naziv, KD.naziv AS kaznjivo_djelo
+	FROM Slucaj S
+	INNER JOIN Kaznjiva_djela_u_slucaju KDS ON S.id = KDS.id_slucaj
+	INNER JOIN Kaznjiva_djela KD ON KDS.id_kaznjivo_djelo= KD.id
+	WHERE S.status = 'Aktivan';
+
+
+# 8. Izračunajmo iznos zapljene za svaki pojedini slučaj
+
+SELECT S.id, S.naziv, SUM(ZA.vrijednost) AS ukupna_vrijednost_zapljena
+	FROM Slucaj S
+	LEFT JOIN Zapljene ZA ON S.id = ZA.id_slucaj
+	GROUP BY S.id, S.naziv;
+
+
+# 9. Pronađi prosječnu vrijednost zapljene za pojedina kaznena djela
+
+SELECT K.naziv AS vrsta_kaznjivog_djela, AVG(ZA.vrijednost) AS prosjecna_vrijednost_zapljene
+	FROM Kaznjiva_djela_u_slucaju KDS
+	JOIN Kaznjiva_djela KD ON KDS.id_kaznjivo_djelo= KD.id
+	JOIN Zapljene ZA ON KDS.id_slucaj = ZA.id_slucaj
+	GROUP BY KD.naziv;
+
+
+# 10. Pronađi sve odjele i broj zaposlenika na njima
+
+SELECT O.naziv AS naziv_odjela, COUNT(Z.id) AS broj_zaposlenika
+	FROM Zaposlenik Z
+	JOIN Odjeli O ON Z.id_odjel = O.id
+	GROUP BY O.id, O.naziv;
+
+
+# 11. Pronađi ukupnu vrijednost zapljena po odjelu i sortiraj ih po vrijednosti silazno
+
+SELECT Z.id_odjel, SUM(ZA.vrijednost) AS ukupna_vrijednost_zapljena
+	FROM Slucaj S
+	JOIN Zapljene ZA ON S.id = ZA.id_slucaj
+	JOIN Zaposlenik Z ON S.id_voditelj= Z.id
+	GROUP BY Z.id_odjel
+	ORDER BY ukupna_vrijednost_zapljena DESC;
+
+
+# 12. Pronađi osobu koja mora odslužiti najveću ukupnu zatvorsku kaznu
+
+SELECT O.id, O.ime_prezime, SUM(KD.predvidena_kazna) AS ukupna_kazna
+	FROM Osoba O
+	INNER JOIN Slucaj S ON O.id = S.id_pocinitelj
+	INNER JOIN Kaznjiva_djela_u_slucaju KDS ON S.id = KDS.id_slucaj
+	INNER JOIN Kaznjiva_djela KD ON KDS.id_kaznjivo_djelo= KD.id
+	WHERE KD.predvidena_kazna IS NOT NULL
+	GROUP BY O.id, O.ime_prezime
+	ORDER BY ukupna_kazna DESC
+	LIMIT 1;
+
+
+# 13. Prikaži sva vozila i u koliko slučajeva su se oni upisali
+
+SELECT V.*, COUNT(S.id) AS broj_slucajeva
+	FROM Vozilo V
+	LEFT OUTER JOIN Osoba O ON V.id_vlasnik = O.id
+	INNER JOIN Slucaj S ON O.id = S.id_pocinitelj
+	GROUP BY V.id;
+
+
+# 14. Mjesto s najviše slučajeva
+
+SELECT M.*, COUNT(ED.id) AS broj_slucajeva
+	FROM Mjesto M
+	INNER JOIN Evidencija_dogadaja ED ON M.id = ED.id_mjesto
+	GROUP BY M.id 
+	ORDER BY broj_slucajeva DESC 
+	LIMIT 1;
+
+
+# 15. Mjesto s najmanje slučajeva
+
+SELECT M.*, COUNT(ED.id) AS broj_slucajeva
+	FROM Mjesto M
+	INNER JOIN Evidencija_dogadaja ED ON M.id = ED.id_mjesto
+	GROUP BY M.id 
+	ORDER BY broj_slucajeva ASC
+	LIMIT 1;
+
+
+# 16. Pronađi policijskog službenika koji je vodio najviše slučajeva
+
+SELECT Z.id AS id_zaposlenika, O.ime_prezime AS ime_prezime_zaposlenika, COUNT(S.id) AS broj_slucajeva
+	FROM Zaposlenik Z
+	JOIN Osoba O ON Z.id_osoba= O.id
+	LEFT JOIN Slucaj S ON S.id_voditelj = Z.id
+	GROUP BY Z.id, o.ime_prezime
+	HAVING COUNT(S.id) =
+		(SELECT MAX(broj_slucajeva)
+    			FROM (
+        			SELECT COUNT(id) AS broj_slucajeva
+        				FROM Slucaj - smijem li i ovdje S umjesto Slucaj?
+        				GROUP BY id_voditelj
+    		) AS max_voditelj
+	);
+
+
+# 17. Ispiši sva mjesta gdje nema evidentiranih kaznjivih djela u slučajevima(ili uopće nema slučajeva)
+
+SELECT M.id, M.naziv
+	FROM Mjesto M
+	LEFT JOIN Evidencija_dogadaja ED ON M.id = ED.id_mjesto
+	LEFT JOIN Slucaj S ON ED.id_slucaj= S.id
+	LEFT JOIN Kaznjiva_djela_u_slucaju KDS ON S.id = KDS.id_slucaj
+	WHERE KDS.id_slucaj IS NULL OR KDS.id_kaznjivo_djelo IS NULL
+	GROUP BY M.id, M.naziv;
 #########################################################################################################################################
 # POGLEDI
-# Ako je uz osumnjičenika povezano vozilo, onda se stvara materijalizirani pogled koji prati sve osumnjičenike i njihova vozila
+# 1. Ako je uz osumnjičenika povezano vozilo, onda se stvara materijalizirani pogled koji prati sve osumnjičenike i njihova vozila
 CREATE VIEW osumnjicenici_vozila AS
 SELECT
 	Osoba.id AS id_osobe,
@@ -775,7 +801,7 @@ SELECT
 FROM Osoba
 LEFT JOIN Vozilo ON Osoba.id = Vozilo.id_vlasnik
 INNER JOIN Slucaj ON Osoba.id = Slucaj.id_pocinitelj;
-# Pronađi sve policajce koji su vlasnici vozila koja su starija od 10 godina
+# 2. Pronađi sve policajce koji su vlasnici vozila koja su starija od 10 godina
 CREATE VIEW PolicajciSaStarimVozilima AS
 SELECT O.Ime_Prezime AS Policajac, V.Marka, V.Model, V.Godina_proizvodnje
 FROM Osoba O
@@ -784,7 +810,7 @@ JOIN Vozilo V ON O.Id = V.id_vlasnik
 WHERE Z.id_radno_mjesto= (SELECT Id FROM Radno_mjesto WHERE Vrsta = 'Policajac')
 AND V.Godina_proizvodnje <= YEAR(NOW()) - 10;
 
-# Napravi pogled koji će pronaći sve osobe koje su počinile kazneno djelo pljačke i pri tome su koristili pištolj (to dohvati pomoću tablice predmet) i nazovi pogled "Počinitelji oružane pljačke"
+# 3. Napravi pogled koji će pronaći sve osobe koje su počinile kazneno djelo pljačke i pri tome su koristili pištolj (to dohvati pomoću tablice predmet) i nazovi pogled "Počinitelji oružane pljačke"
 CREATE VIEW PočiniteljiOružanePljačke AS
 SELECT O.Ime_Prezime AS Počinitelj, K.Naziv AS KaznenoDjelo
 FROM Osoba O
@@ -795,7 +821,7 @@ JOIN Predmet P ON S.id_dokaz= P.Id
 WHERE K.Naziv = 'Pljačka' AND P.Naziv LIKE '%pištolj%';
 
 
-#Napravi pogled koji će izlistati sva evidentirana kaznena djela i njihov postotak pojavljivanja u slučajevima
+# 4. Napravi pogled koji će izlistati sva evidentirana kaznena djela i njihov postotak pojavljivanja u slučajevima
 CREATE VIEW PostotakPojavljivanjaKaznenihDjela AS
 SELECT
     KD.Naziv AS 'Kazneno_Djelo',
@@ -810,7 +836,7 @@ ON
 GROUP BY
     KD.Naziv;
 
-# Napravi pogled koji će izlistati sva evidentirana sredstva utvrđivanja istine i broj slučajeva u kojima je svako od njih korišteno
+# 5. Napravi pogled koji će izlistati sva evidentirana sredstva utvrđivanja istine i broj slučajeva u kojima je svako od njih korišteno
 CREATE VIEW EvidentiranaSredstvaUtvrdivanjaIstine AS
 SELECT Sredstvo_utvrdivanja_istine.Naziv AS 'SredstvoUtvrdivanjaIstine',
        COUNT(Sui_slucaj.Id_sui) AS 'BrojSlucajeva'
@@ -819,7 +845,7 @@ LEFT JOIN Sui_slucaj ON Sredstvo_utvrdivanja_istine.Id = Sui_slucaj.Id_sui
 GROUP BY Sredstvo_utvrdivanja_istine.Id;
 
 
-# Napravi pogled koji će izlistati sve slučajeve i sredstva utvrđivanja istine u njima, te izračunati trajanje svakog od slučajeva
+# 6. Napravi pogled koji će izlistati sve slučajeve i sredstva utvrđivanja istine u njima, te izračunati trajanje svakog od slučajeva
 
 CREATE VIEW SlucajeviSortiraniPoTrajanjuISredstva AS
 SELECT S.*, 
@@ -831,14 +857,14 @@ LEFT JOIN Sredstvo_utvrdivanja_istine SUI ON SUI_S.Id_sui = SUI.ID
 GROUP BY S.ID
 ORDER BY Trajanje_u_danima DESC;
 
-# Napiši pogled koji će u jednu tablicu pohraniti sve izvještaje vezane uz pojedine slučajeve
+# 7. Napiši pogled koji će u jednu tablicu pohraniti sve izvještaje vezane uz pojedine slučajeve
 CREATE VIEW IzvjestajiZaSlucajeve AS
 SELECT S.Naziv AS Slucaj, I.Naslov AS NaslovIzvjestaja, I.Sadrzaj AS SadržajIzvjestaja, O.Ime_Prezime AS AutorIzvjestaja
 FROM Izvjestaji I
 INNER JOIN Slucaj S ON I.id_slucaj	 = S.ID
 INNER JOIN Osoba O ON I.id_autor	= O.Id;
 
-# Napravi pogled koji će izlistati sve osobe i njihove odjele. Ukoliko osoba nije policajac te nema odjel (odjel je NULL), neka se uz tu osobu napiše "Osoba nije policijski službenik"
+# 8. Napravi pogled koji će izlistati sve osobe i njihove odjele. Ukoliko osoba nije policajac te nema odjel (odjel je NULL), neka se uz tu osobu napiše "Osoba nije policijski službenik"
 CREATE VIEW OsobeIOdjeli AS
 SELECT O.Ime_Prezime AS ImeOsobe,
        CASE
@@ -851,7 +877,7 @@ LEFT JOIN Zaposlenik Z ON O.Id = Z.id_osoba
 LEFT JOIN Odjeli OD ON Z.id_odjel= OD.Id;
 
 
-# Napravi pogled koji će ispisati sve voditelje slučajeva, ukupan broj slučajeva koje vode, ukupan broj rješenjih slučajeva, ukupan broj nerješenih slučajeva i postotak rješenosti
+# 9. Napravi pogled koji će ispisati sve voditelje slučajeva, ukupan broj slučajeva koje vode, ukupan broj rješenjih slučajeva, ukupan broj nerješenih slučajeva i postotak rješenosti
 CREATE VIEW VoditeljiSlucajeviPregled AS
 SELECT
     O.Ime_Prezime AS Voditelj,
@@ -866,7 +892,7 @@ LEFT JOIN
 GROUP BY
     Voditelj;
 
-# Napravi POGLED koji će prikazivati statistiku zapljena za svaku vrstu kaznenog djela (prosjek, minimum, maksimum  (za vrijednosti) i broj predmeta)
+# 10. Napravi POGLED koji će prikazivati statistiku zapljena za svaku vrstu kaznenog djela (prosjek, minimum, maksimum  (za vrijednosti) i broj predmeta)
 CREATE VIEW StatistikaZapljenaPoKaznenomDjelu AS
 SELECT
     K.Naziv AS 'Vrsta_kaznenog_djela',
@@ -884,7 +910,7 @@ GROUP BY K.Naziv;
 SELECT * From StatistikaZapljenaPoKaznenomDjelu;
 DROP VIEW StatistikaZapljenaPoKaznenomDjelu;
 
-# Napravi POGLED koji će za svaki slučaj izračunati ukupnu zatvorsku kaznu, uz ograničenje da maksimalna zakonska zatvorska kazna u RH iznosi 50 godina. Ako ukupna kazna premaši 50, postaviti će se na 50 uz odgovarajuće upozorenje
+# 11. Napravi POGLED koji će za svaki slučaj izračunati ukupnu zatvorsku kaznu, uz ograničenje da maksimalna zakonska zatvorska kazna u RH iznosi 50 godina. Ako ukupna kazna premaši 50, postaviti će se na 50 uz odgovarajuće upozorenje
 CREATE VIEW UkupnaPredvidenaKaznaPoSlucaju AS
 SELECT S.ID AS 'SlucajID',
        S.Naziv AS 'NazivSlucaja',
@@ -901,7 +927,7 @@ LEFT JOIN Kaznjiva_Djela_u_Slucaju KDUS ON S.ID = KDUS.id_slucaj
 LEFT JOIN Kaznjiva_Djela KD ON KDUS.id_kaznjivo_djelo		= KD.ID
 GROUP BY S.ID, S.Naziv;
 
-# Napiši POGLED koji će za sve policijske službenike dohvatiti njihovu dob i godine staža (ukoliko je još aktivan, oduzimat ćemo od trenutne godine godinu zaposlenja, a ako je umirovljen, oduzimat će od godine umirovljenja godinu zaposlenja)
+# 12. Napiši POGLED koji će za sve policijske službenike dohvatiti njihovu dob i godine staža (ukoliko je još aktivan, oduzimat ćemo od trenutne godine godinu zaposlenja, a ako je umirovljen, oduzimat će od godine umirovljenja godinu zaposlenja)
 # Onda dodat još stupac koji prati dali je umirovljen ili aktivan
 CREATE VIEW Pogled_Policijskih_Sluzbenika AS
 SELECT
@@ -916,7 +942,7 @@ SELECT
 FROM Osoba o
 INNER JOIN Zaposlenik z ON o.Id = z.id_osoba;
 
-# Napravi pogled koji će dohvaćati sve osumnjičenike, zajedno s kažnjivim djelima za koja su osumnjičeni
+# 13. Napravi pogled koji će dohvaćati sve osumnjičenike, zajedno s kažnjivim djelima za koja su osumnjičeni
 CREATE VIEW Pogled_Osumnjicene_Osobe_KD AS
 SELECT DISTINCT O.Ime_Prezime, K.Naziv AS 'Naziv kaznenog djela'
 FROM Osoba O
@@ -924,7 +950,7 @@ JOIN Slucaj S ON O.Id = S.id_pocinitelj
 JOIN Kaznjiva_djela_u_slucaju KD ON S.Id = KD.id_slucaj
 JOIN Kaznjiva_djela K ON KD.id_kaznjivo_djelo = K.id;
 
-# Napravi pogled koji će izlistati sve pse i broj slučajeva na kojima je svaki od njih radio. U poseban stupac dodaj broj riješenih slučajeva od onih na kojima su radili. Zatim izračunaj postotak rješenosti slučajeva za svakog psa i to dodaj u novi stupac
+# 14. Napravi pogled koji će izlistati sve pse i broj slučajeva na kojima je svaki od njih radio. U poseban stupac dodaj broj riješenih slučajeva od onih na kojima su radili. Zatim izračunaj postotak rješenosti slučajeva za svakog psa i to dodaj u novi stupac
 CREATE VIEW Pregled_Pasa AS
 SELECT
     P.Id AS PasID,
@@ -940,7 +966,7 @@ LEFT JOIN Osoba AS O ON P.Id_trener = O.Id
 GROUP BY
     P.Id;
 
-# Nadogradi prethodni POGLED tako da pronalazi najefikasnijeg psa, s najvećim postotkom rješenosti
+# 15. Nadogradi prethodni POGLED tako da pronalazi najefikasnijeg psa, s najvećim postotkom rješenosti
 CREATE VIEW NajefikasnijiPas AS
 SELECT
     PasID,
@@ -954,7 +980,7 @@ FROM
 WHERE
     PostotakRjesenosti = (SELECT MAX(PostotakRjesenosti) FROM Pregled_Pasa);
 
--- Napravi pogled koji prikazuje broj kazni zboog brze vožnje u svakom gradu u proteklih mjesec dana. Zatim pomoću upita ispiši grad
+-- 16. Napravi pogled koji prikazuje broj kazni zboog brze vožnje u svakom gradu u proteklih mjesec dana. Zatim pomoću upita ispiši grad
 -- u kojem je bilo najviše kazni zbog brze vožnje u proteklih mjesec dana.
 
 CREATE VIEW brza_voznja_gradovi AS
@@ -968,7 +994,7 @@ FROM brza_voznja_gradovi
 ORDER BY broj_kazni_za_brzu_voznju DESC
 LIMIT 1; 
 
--- Napravi pogled koji prikazuje sve osobe koje su skrivile više od 2 prometne nesreće u posljednjih godinu dana. 
+-- 17. Napravi pogled koji prikazuje sve osobe koje su skrivile više od 2 prometne nesreće u posljednjih godinu dana. 
 -- Zatim napravi upit koji će prikazati osobu koja je skrivila najviše prometnih nesreća u posljednjih godinu dana.
 
 CREATE VIEW osoba_prometna_nesreca AS
@@ -983,7 +1009,7 @@ ORDER BY broj_prometnih_nesreca DESC
 LIMIT 1;
 
 
-# Napravi pogled koji će pronaći sva kažnjiva djela koja su se događala u slučajevima
+# 18. Napravi pogled koji će pronaći sva kažnjiva djela koja su se događala u slučajevima
 # Zatim napravi upit kojim ćemo moći pronalaziti kažnjiva djela za određeno mjesto po id-ju
 CREATE VIEW Kaznjiva_Djela_Na_Mjestu AS
 SELECT K.Naziv, K.Opis
@@ -993,7 +1019,7 @@ JOIN Evidencija_Dogadaja ED ON KS.id_slucaj = ED.id_slucaj;
 
 SELECT * FROM Kaznjiva_Djela_Na_Mjestu WHERE ED.id_mjesto = 1;
 
-# Napravi pogled koji će dohvatiti sve osobe, slučajeve koje su počinili i KD u njima
+# 19. Napravi pogled koji će dohvatiti sve osobe, slučajeve koje su počinili i KD u njima
 CREATE VIEW Osobe_i_KD AS
 SELECT DISTINCT O.Ime_Prezime
 FROM Osoba O
@@ -1003,7 +1029,7 @@ JOIN Kaznjiva_djela K ON KD.id_kaznjivo_djelo = K.id
 
 
 
-# Napravi pogled koji će ispisati sve slučajeve i evidentirane događaje za osobe.
+# 20. Napravi pogled koji će ispisati sve slučajeve i evidentirane događaje za osobe.
 # Podaci će se zatim moći filtrirati (npr. po imenu i prezimenu)
 # Ispišimo slučajeve i evidencije za određenu osobu (osumnjičenika)
 
@@ -1015,7 +1041,7 @@ JOIN Osoba O ON O.Id = S.id_pocinitelj;
 
 SELECT * FROM SD_osoba WHERE O.Ime_Prezime = 'Pero Perić';
 
-# Napravi pogled koji će dohvaćati sve događaje koji su vezani za slučajeve koji sadrže određeno kažnjivo djelo
+# 21. Napravi pogled koji će dohvaćati sve događaje koji su vezani za slučajeve koji sadrže određeno kažnjivo djelo
 CREATE VIEW Dogadaji_KD AS
 SELECT E.Opis_Dogadaja, E.Datum_Vrijeme, K.Naziv AS 'Naziv kaznjivog djela'
 FROM Evidencija_Dogadaja E
@@ -1027,8 +1053,7 @@ SELECT * FROM Dogadaji_KD WHERE 'Naziv kaznjivog djela' = 'Ubojstvo'
 
 ##############################################################################################################################################
 # PROCEDURE
-# PROCEDURE
-# Napiši proceduru za unos novog područja uprave
+# 1. Napiši proceduru za unos novog područja uprave
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novo_Podrucje_Uprave(IN p_naziv VARCHAR(255))
@@ -1038,7 +1063,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za unos novog mjesta
+# 2. Napiši proceduru za unos novog mjesta
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novo_Mjesto(
@@ -1051,7 +1076,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za unos nove zgrade
+# 3. Napiši proceduru za unos nove zgrade
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novu_Zgradu(
@@ -1065,7 +1090,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za unos novog radnog mjesta
+# 4. Napiši proceduru za unos novog radnog mjesta
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novo_Radno_Mjesto(
@@ -1078,7 +1103,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za unos novog odjela
+# 5. Napiši proceduru za unos novog odjela
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novi_Odjel(
@@ -1091,7 +1116,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za unos nove osobe
+# 6. Napiši proceduru za unos nove osobe
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novu_Osobu(
@@ -1111,7 +1136,7 @@ END //
 
 DELIMITER ;
 
-# Procedura za unos novog zaposlenika
+# 7. Procedura za unos novog zaposlenika
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novog_Zaposlenika(
@@ -1130,7 +1155,7 @@ END //
 
 DELIMITER ;
 
-# Procedura za unos novog vozila
+# 8. Procedura za unos novog vozila
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novo_Vozilo(
@@ -1157,7 +1182,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za dodavanje novog predmeta
+# 9. Napiši proceduru za dodavanje novog predmeta
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novi_Predmet(
@@ -1172,7 +1197,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za dodavanje novog kaznjivog djela u bazu
+# 10. Napiši proceduru za dodavanje novog kaznjivog djela u bazu
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novo_Kaznjivo_Djelo(
@@ -1188,7 +1213,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za dodavanje novog psa
+# 11. Napiši proceduru za dodavanje novog psa
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novog_Psa(
@@ -1206,7 +1231,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za dodavanje novog slučaja, ali neka se ukupna vrijednost zapljena i dalje računa automatski preko trigera
+# 12. Napiši proceduru za dodavanje novog slučaja, ali neka se ukupna vrijednost zapljena i dalje računa automatski preko trigera
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Novi_Slucaj(
@@ -1230,7 +1255,7 @@ END //
 
 DELIMITER ;
 
-# Napravi proceduru koja će dodati novi događaj
+# 13. Napravi proceduru koja će dodati novi događaj
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_događaj_u_evidenciju(
@@ -1246,7 +1271,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru koja će dodavati kažnjiva djela u slučaju
+# 14. Napiši proceduru koja će dodavati kažnjiva djela u slučaju
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Kaznjivo_Djelo_U_Slucaju(
@@ -1263,7 +1288,7 @@ DELIMITER ;
 
 DELIMITER //
 
-# Napiši proceduru za dodavanje izvještaja
+# 15. Napiši proceduru za dodavanje izvještaja
 CREATE PROCEDURE Dodaj_Izvjestaj(
     IN p_naslov VARCHAR(255),
     IN p_sadrzaj TEXT,
@@ -1277,7 +1302,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za dodavanje zapljena
+# 16. Napiši proceduru za dodavanje zapljena
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Zapljene(
@@ -1294,7 +1319,7 @@ END //
 DELIMITER ;
 
 
-# Napiši proceduru za dodavanje sredstva utvrđivanja istine
+# 17. Napiši proceduru za dodavanje sredstva utvrđivanja istine
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Sredstvo_Utvrđivanja_Istine(
@@ -1307,7 +1332,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru za dodavanje SUI slučaj
+# 18. Napiši proceduru za dodavanje SUI slučaj
 DELIMITER //
 
 CREATE PROCEDURE Dodaj_Sui_Slucaj(
@@ -1321,7 +1346,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru koja će svim zatvorenicima koji su još u zatvoru (datum odlaska iz zgrade zatvora im je NULL) dodati novi stupac sa brojem dana u zatvoru koji će dobiti tako da računa broj dana o dana dolaska u zgradu do današnjeg dana
+# 19. Napiši proceduru koja će svim zatvorenicima koji su još u zatvoru (datum odlaska iz zgrade zatvora im je NULL) dodati novi stupac sa brojem dana u zatvoru koji će dobiti tako da računa broj dana o dana dolaska u zgradu do današnjeg dana
 # Ubacit scheduled dnevno izvođenje procedure
 DELIMITER //
 
@@ -1393,7 +1418,7 @@ BEGIN
 END //
 
 DELIMITER ;
-
+# EVENT 1
 DELIMITER //
 
 CREATE EVENT IF NOT EXISTS `BrojDanaUZatvoruEvent`
@@ -1405,7 +1430,7 @@ END //
 
 DELIMITER ;
 
-    # Napiši proceduru koja će omogućiti da pretražujemo slučajeve preko neke ključne riječi iz opisa
+    # 20. Napiši proceduru koja će omogućiti da pretražujemo slučajeve preko neke ključne riječi iz opisa
 DELIMITER //
 CREATE PROCEDURE PretraziSlucajevePoOpisu(IN kljucnaRijec TEXT)
 BEGIN
@@ -1413,7 +1438,7 @@ BEGIN
 END //
 DELIMITER ;
 
-# Napiši proceduru koja će kreirati novu privremenu tablicu u kojoj će se prikazati svi psi i broj slučajeva na kojima su radili. Zatim će dodati novi stupac tablici pas i u njega upisati "nagrađeni pas" kod svih pasa koji su radili na više od 15 slučajeva 
+# 21. Napiši proceduru koja će kreirati novu privremenu tablicu u kojoj će se prikazati svi psi i broj slučajeva na kojima su radili. Zatim će dodati novi stupac tablici pas i u njega upisati "nagrađeni pas" kod svih pasa koji su radili na više od 15 slučajeva 
 DELIMITER //
 CREATE PROCEDURE Godisnje_nagrađivanje_pasa()
 BEGIN
@@ -1435,7 +1460,7 @@ BEGIN
 END //
 DELIMITER ;
 
-# Napiši proceduru koja će generirati izvještaje o slučajevima u zadnjih 20 dana (ovaj broj se može prilagođavati)
+# 22. Napiši proceduru koja će generirati izvještaje o slučajevima u zadnjih 20 dana (ovaj broj se može prilagođavati)
 DELIMITER //
 CREATE PROCEDURE GenerirajIzvjestajeOSlučajevima()
 BEGIN
@@ -1469,7 +1494,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši proceduru koja će za određenu osobu kreirati potvrdu o nekažnjavanju. To će napraviti samo u slučaju da osoba stvarno nije evidentirana niti u jednom slučaju kao počinitelj. Ukoliko je osoba kažnjavana i za to ćemo dobiti odgovarajuću obavijest. Također,ako uspješno izdamo potvrdu, neka se prikaže i datum izdavanja
+# 23. Napiši proceduru koja će za određenu osobu kreirati potvrdu o nekažnjavanju. To će napraviti samo u slučaju da osoba stvarno nije evidentirana niti u jednom slučaju kao počinitelj. Ukoliko je osoba kažnjavana i za to ćemo dobiti odgovarajuću obavijest. Također,ako uspješno izdamo potvrdu, neka se prikaže i datum izdavanja
 DELIMITER //
 
 CREATE PROCEDURE ProvjeriNekažnjavanje(IN osoba_id INT)
@@ -1499,7 +1524,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru koja će omogućiti da za određenu osobu izmjenimo kontakt informacije (email i/ili broj telefona)
+# 24. Napiši proceduru koja će omogućiti da za određenu osobu izmjenimo kontakt informacije (email i/ili broj telefona)
 DELIMITER //
 
 CREATE PROCEDURE IzmjeniKontaktInformacije(
@@ -1524,7 +1549,7 @@ END //
 
 DELIMITER ;
 
-# Napiši proceduru koja će za određeni slučaj izlistati sve događaje koji su se u njemu dogodili i poredati ih kronološki
+# 25. Napiši proceduru koja će za određeni slučaj izlistati sve događaje koji su se u njemu dogodili i poredati ih kronološki
 DELIMITER //
 
 CREATE PROCEDURE Izlistaj_dogadjaje(IN id_slucaj INT)
@@ -1537,7 +1562,7 @@ END //
 
 DELIMITER ;
 #CALL Izlistaj_dogadjaje(10);
-# Napiši PROCEDURU KOJA ZA ARGUMENT PRIMA OZNAKU PSA, A VRAĆA ID, IME i PREZIME VLASNIKA i BROJ SLUČAJEVA U KOJIMA JE PAS SUDJELOVAO
+# 26. Napiši PROCEDURU KOJA ZA ARGUMENT PRIMA OZNAKU PSA, A VRAĆA ID, IME i PREZIME VLASNIKA i BROJ SLUČAJEVA U KOJIMA JE PAS SUDJELOVAO
 DELIMITER //
 CREATE PROCEDURE Info_pas(IN Oznaka VARCHAR(255))
 BEGIN
@@ -1557,7 +1582,7 @@ END
 //
 DELIMITER ;
 
-# Napiši proceduru koja će za određeno KD moći smanjiti ili povećati predviđenu kaznu tako što će za argument primiti naziv KD i broj godina za koji želimo izmjeniti kaznu
+# 27. Napiši proceduru koja će za određeno KD moći smanjiti ili povećati predviđenu kaznu tako što će za argument primiti naziv KD i broj godina za koji želimo izmjeniti kaznu
 # Ako želimo smanjiti kaznu, za argument ćemo prosljediti negativan broj
 DELIMITER //
 CREATE PROCEDURE izmjeni_kaznu(IN naziv_djela VARCHAR(255), IN iznos INT)
@@ -1580,7 +1605,7 @@ BEGIN
 END //
 DELIMITER ;
 
-#Napiši proceduru koja će dohvaćati slučajeve koji sadrže određeno kazneno djelo i sortirati ih po vrijednosti zapljene silazno
+#28. Napiši proceduru koja će dohvaćati slučajeve koji sadrže određeno kazneno djelo i sortirati ih po vrijednosti zapljene silazno
 DELIMITER //
 CREATE PROCEDURE Dohvati_Slucajeve_Po_Kaznenom_Djelu_Sortirano(kaznenoDjeloNaziv VARCHAR(255))
 BEGIN
@@ -1612,7 +1637,7 @@ END //
 DELIMITER ;
 #CALL Dohvati_Slucajeve_Po_Kaznenom_Djelu_Sortirano('Ubojstvo');
 
-# Napiši proceduru koja će ispisati sve zaposlenike, imena i prezimena, adrese i brojeve telefona u jednom redu za svakog zaposlenika
+# 29. Napiši proceduru koja će ispisati sve zaposlenike, imena i prezimena, adrese i brojeve telefona u jednom redu za svakog zaposlenika
 DROP PROCEDURE IF EXISTS IspisiInformacijeZaposlenika;
 DELIMITER //
 
@@ -1668,7 +1693,7 @@ DELIMITER ;
 
 
 CALL IspisiInformacijeZaposlenika;
-# Napiši proceduru koja će ispisati sve slučajeve i za svaki slučaj ispisati voditelja i ukupan iznos zapljena. Ako nema pronađenih slučajeva, neka nas obavijesti o tome
+# 30. Napiši proceduru koja će ispisati sve slučajeve i za svaki slučaj ispisati voditelja i ukupan iznos zapljena. Ako nema pronađenih slučajeva, neka nas obavijesti o tome
 #DROP PROCEDURE IspisiPodatkeOSlucajevimaIZapljenama;
 DELIMITER //
 
@@ -1711,7 +1736,7 @@ DELIMITER ;
 
 CALL IspisiPodatkeOSlucajevimaIZapljenama;
 
-# Napiši proceduru koja će služiti za unaprijeđenje policijskih službenika na novo radno mjesto. Ako je novo radno mjesto jednako onom radnom mjestu osobe koja im je prije bila nadređena, postaviti će id_nadređeni na NULL
+# 31. Napiši proceduru koja će služiti za unaprijeđenje policijskih službenika na novo radno mjesto. Ako je novo radno mjesto jednako onom radnom mjestu osobe koja im je prije bila nadređena, postaviti će id_nadređeni na NULL
 DELIMITER //
 
 CREATE PROCEDURE UnaprijediPolicijskogSluzbenika(
@@ -1744,7 +1769,7 @@ END //
 
 DELIMITER ;
 
-# Napravi proceduru koja će provjeravati je li zatvorska kazna istekla
+# 32. Napravi proceduru koja će provjeravati je li zatvorska kazna istekla
 DELIMITER //
 
 CREATE PROCEDURE ProvjeriIstekZatvorskeKazne()
@@ -1812,6 +1837,7 @@ END //
 
 DELIMITER ;
 
+# EVENT 2
 DELIMITER //
 
 CREATE EVENT IF NOT EXISTS `ProvjeraIstekaKazniEvent`
@@ -1826,7 +1852,7 @@ DELIMITER ;
 ############################################################################################################3
 # Funkcije + upiti za funkcije
 # FUNKCIJE + upiti za funkcije
-# Napiši funkciju koja kao argument prima naziv kaznenog djela i vraća naziv KD, predviđenu kaznu i broj pojavljivanja KD u slučajevima
+# 1. Napiši funkciju koja kao argument prima naziv kaznenog djela i vraća naziv KD, predviđenu kaznu i broj pojavljivanja KD u slučajevima
 DELIMITER //
 CREATE FUNCTION KDInfo(naziv_kaznjivog_djela VARCHAR(255)) RETURNS TEXT
 DETERMINISTIC
@@ -1849,7 +1875,7 @@ DELIMITER ;
 
 SELECT KDInfo('NazivKaznenogDjela');
 
-# Napiši upit koji će koristeći ovu funkciju izlistati sva kaznena djela koja su se dogodila u 2023. godini (ili nekoj drugoj) i njihov broj pojavljivanja
+# 18. Napiši upit koji će koristeći ovu funkciju izlistati sva kaznena djela koja su se dogodila u 2023. godini (ili nekoj drugoj) i njihov broj pojavljivanja
 SELECT
     KDInfo(KD.Naziv) AS KaznjivoDjeloInfo,
     COUNT(KS.id_kaznjivo_djelo) AS BrojPojavljivanja
@@ -1860,7 +1886,7 @@ WHERE YEAR(S.Pocetak) = 2023
 GROUP BY KD.Naziv;
 
 
-# Napiši funkciju koja će vratiti informacije o osobi prema broju telefona
+# 2. Napiši funkciju koja će vratiti informacije o osobi prema broju telefona
 DELIMITER //
 CREATE FUNCTION InformacijeOOsobiPoTelefonu(broj_telefona VARCHAR(20)) RETURNS TEXT
 DETERMINISTIC
@@ -1881,7 +1907,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši upit koji će izlistati sve brojeve telefona i informacije o tim osobama, ali samo ako te osobe nisu policijski službenici
+# 19. Napiši upit koji će izlistati sve brojeve telefona i informacije o tim osobama, ali samo ako te osobe nisu policijski službenici
 SELECT
     Telefon,
     InformacijeOOsobiPoTelefonu(Telefon) AS OsobaInfo
@@ -1890,7 +1916,7 @@ WHERE Osoba.id NOT IN(SELECT id_osoba FROM Zaposlenik);
 
 
 SET SQL_safe_updates = 0;
-# Napiši funkciju koja će za određeni predmet vratiti slučaj u kojem je taj predmet dokaz i osobu koja je u tom slučaju osumnjičena
+# 3. Napiši funkciju koja će za određeni predmet vratiti slučaj u kojem je taj predmet dokaz i osobu koja je u tom slučaju osumnjičena
 DELIMITER //
 
 CREATE FUNCTION DohvatiSlucajIOsobu(id_predmet	INT)
@@ -1920,7 +1946,7 @@ BEGIN
 END //
 
 DELIMITER ;
-# Napiši upit koji izdvaja informacije o određenom predmetu, uključujući naziv predmeta, naziv povezanog slučaja i ime i prezime osumnjičenika u tom slučaju, koristeći funkciju DohvatiSlucajIOsobu za dobijanje dodatnih detalja za taj predmet.
+# 20. Napiši upit koji izdvaja informacije o određenom predmetu, uključujući naziv predmeta, naziv povezanog slučaja i ime i prezime osumnjičenika u tom slučaju, koristeći funkciju DohvatiSlucajIOsobu za dobijanje dodatnih detalja za taj predmet.
 SELECT
     Predmet.ID AS PredmetID,
     Predmet.Naziv AS NazivPredmeta,
@@ -1933,7 +1959,7 @@ INNER JOIN Osoba ON Slucaj.id_pocinitelj = Osoba.ID
 WHERE Predmet.ID = 5;
 
 
-# Napravi funkciju koja će za argument primati sredstvo utvrđivanja istine, zatim će prebrojiti u koliko je slučajeva to sredstvo korišteno, prebrojit će koliko je slučajeva od tog broja riješeno, te će na temelju ta 2 podatka izračunati postotak rješenosti slučajeva gdje se odabrano sredstvo koristi
+# 4. Napravi funkciju koja će za argument primati sredstvo utvrđivanja istine, zatim će prebrojiti u koliko je slučajeva to sredstvo korišteno, prebrojit će koliko je slučajeva od tog broja riješeno, te će na temelju ta 2 podatka izračunati postotak rješenosti slučajeva gdje se odabrano sredstvo koristi
 DELIMITER //
 
 CREATE FUNCTION IzracunajPostotakRjesenosti (
@@ -1965,7 +1991,7 @@ END //
 
 DELIMITER ;
 
-# Koristeći gornju funkciju prikaži sredstva koja imaju rješenost veću od 50% (riješeno je više od 50% slučajeva koja koriste to sredstvo)
+# 21. Koristeći gornju funkciju prikaži sredstva koja imaju rješenost veću od 50% (riješeno je više od 50% slučajeva koja koriste to sredstvo)
 SELECT
     Sredstvo_utvrdivanja_istine.ID AS id_sredstvo,
     Sredstvo_utvrdivanja_istine.Naziv AS Naziv_Sredstva,
@@ -1973,7 +1999,7 @@ SELECT
 FROM Sredstvo_utvrdivanja_istine
 WHERE IzracunajPostotakRjesenosti(Sredstvo_utvrdivanja_istine.ID) > 50.00;
 
-# Napiši funkciju koja će za argument primati registarske tablice vozila, a vraćat će informaciju je li se to vozilo pojavilo u nekom od slučajeva, tako što će provjeriti je li se id_osoba koji referencira vlasnika pojavio u nekom slučaju kao pocinitelj_id. Ako se pojavilo, vraćat će "Vozilo se pojavljivalo u slučajevima", a ako se nije pojavilo, vraćat će "Vozilo se nije pojavljivalo u slučajevima". Također, vratit će i broj koliko se puta vozilo pojavilo
+# 5. Napiši funkciju koja će za argument primati registarske tablice vozila, a vraćat će informaciju je li se to vozilo pojavilo u nekom od slučajeva, tako što će provjeriti je li se id_osoba koji referencira vlasnika pojavio u nekom slučaju kao pocinitelj_id. Ako se pojavilo, vraćat će "Vozilo se pojavljivalo u slučajevima", a ako se nije pojavilo, vraćat će "Vozilo se nije pojavljivalo u slučajevima". Također, vratit će i broj koliko se puta vozilo pojavilo
 DELIMITER //
 CREATE FUNCTION Provjera_vozila(Registracija VARCHAR(20)) RETURNS VARCHAR(100)
 DETERMINISTIC
@@ -1998,7 +2024,7 @@ BEGIN
 END //
 DELIMITER ;
 
-# Koristeći funkciju prikažite vozila koja se pojavljuju iznad prosjeka (u iznadprosječnom broju)
+# 22. Koristeći funkciju prikažite vozila koja se pojavljuju iznad prosjeka (u iznadprosječnom broju)
 CREATE TEMPORARY TABLE Prosjek_Pojavljivanja AS
 SELECT AVG(count) AS Prosjek
 FROM (
@@ -2021,7 +2047,7 @@ WHERE Podupit2.count > (SELECT Prosjek FROM Prosjek_Pojavljivanja);
 
 
 
-# Funkcija koja za argument prima id podrucja uprave i vraća broj mjesta u tom području te naziv svih mjesta u 1 stringu
+# 6. Funkcija koja za argument prima id podrucja uprave i vraća broj mjesta u tom području te naziv svih mjesta u 1 stringu
 DELIMITER //
 CREATE FUNCTION Podaci_O_Podrucju(id_podrucje INT) RETURNS TEXT
 DETERMINISTIC
@@ -2042,7 +2068,7 @@ BEGIN
 END //
 DELIMITER ;
 
-# Napravi funkciju koje će za slučej predan preko id-ja dohvatiti broj kažnjivih djela u njemu
+# 7. Napravi funkciju koje će za slučej predan preko id-ja dohvatiti broj kažnjivih djela u njemu
 DELIMITER //
 
 CREATE FUNCTION Broj_Kaznjivih_Djela_U_Slucaju(id_slucaj INT) RETURNS INT
@@ -2062,7 +2088,7 @@ DELIMITER ;
 
 SELECT Broj_Kaznjivih_Djela_U_Slucaju(5);
 
-# Koristeći gornju funkciju napiši upit koji će naći slučaj s najviše kažnjivih djela
+# 23. Koristeći gornju funkciju napiši upit koji će naći slučaj s najviše kažnjivih djela
 SELECT
     S.ID AS id_slucaj,
     S.Naziv AS Naziv_Slucaja,
@@ -2071,7 +2097,7 @@ FROM Slucaj S
 GROUP BY id_slucaj, Naziv_Slucaja;
 
 
-# Funkcija koje će za argument primati status slučajeva i vratiti će broj slučajeva sa tim statusom
+# 8. Funkcija koje će za argument primati status slučajeva i vratiti će broj slučajeva sa tim statusom
 DELIMITER //
 CREATE FUNCTION broj_slucajeva_po_statusu(status VARCHAR(20)) RETURNS INT
 DETERMINISTIC
@@ -2092,7 +2118,7 @@ END;
 //
 DELIMITER ;
 
-# Koristeći gornju funkciju napravi upit koji će dohvatiti sve statuse koji vrijede za više od 5 slučajeva (ili neki drugi broj)
+# 24. Koristeći gornju funkciju napravi upit koji će dohvatiti sve statuse koji vrijede za više od 5 slučajeva (ili neki drugi broj)
 SELECT 
     Status,
     COUNT(*) AS broj_slucajeva
@@ -2103,7 +2129,7 @@ GROUP BY
 HAVING
     broj_slucajeva_po_statusu(Status) > 5; -- Prilagodimo broj prema potrebi
 
-# Funkcija koja za argument prima id_slucaj i računa njegovo trajanje; ako je završen, onda trajanje od početka do završetka, a ako nije, onda trajanje od početka do poziva funkcije
+# 9. Funkcija koja za argument prima id_slucaj i računa njegovo trajanje; ako je završen, onda trajanje od početka do završetka, a ako nije, onda trajanje od početka do poziva funkcije
 DELIMITER //
 CREATE FUNCTION Informacije_o_slucaju(id_slucaj INT) RETURNS TEXT
 DETERMINISTIC
@@ -2129,7 +2155,7 @@ END;
 //
 DELIMITER ;
 
-# Napiši upit koji će dohvatiti sve slučajeve i pomoću funkcije iščitati njihove statuse i trajanja
+# 25. Napiši upit koji će dohvatiti sve slučajeve i pomoću funkcije iščitati njihove statuse i trajanja
     SELECT 
     Id AS 'ID slučaja',
     Naziv AS 'Naziv slučaja',
@@ -2137,7 +2163,7 @@ DELIMITER ;
 FROM 
     Slucaj;
 
--- Napiši funckiju koja će za zaposlenika definiranog parametron p_id_zaposlenik izbrojiti broj slučajeva na kojima je on bio voditelj i izračunati 
+-- 10. Napiši funckiju koja će za zaposlenika definiranog parametron p_id_zaposlenik izbrojiti broj slučajeva na kojima je on bio voditelj i izračunati 
 -- postotak rješenosti tih slučajeva te na temelju toga ispiše je li zaposlenik neuspješan (0%-49%) ili uspješan (50%-100%).
 
 DELIMITER //
@@ -2167,7 +2193,7 @@ END IF;
 END//
 DELIMITER ;
 
-# upit koji će za svakog zaposlenika pozvati funkciju uspješnosti i vratiti rezultat, osim ako nije vodio slučajeve, onda će vratiti odgovarajuću obavijest
+# 26. upit koji će za svakog zaposlenika pozvati funkciju uspješnosti i vratiti rezultat, osim ako nije vodio slučajeve, onda će vratiti odgovarajuću obavijest
     SELECT
     Z.Id AS 'ID zaposlenika',
     Z.Ime_Prezime AS 'Ime i prezime zaposlenika',
@@ -2179,7 +2205,7 @@ DELIMITER ;
 FROM
     Zaposlenik Z;
 
--- Napiši funkciju koja će za osobu definiranu parametrom p_id_osoba vratiti "DA" ako je barem jednom bila oštećenik u nekom slučaju, a u 
+-- 11. Napiši funkciju koja će za osobu definiranu parametrom p_id_osoba vratiti "DA" ako je barem jednom bila oštećenik u nekom slučaju, a u 
 -- protivnom će vratiti "NE."
 
 DELIMITER //
@@ -2199,7 +2225,7 @@ END IF;
 
 END//
 DELIMITER ;
-# Prikaži sve osobe koje su oštećene više od 3 puta
+# 27. Prikaži sve osobe koje su oštećene više od 3 puta
     SELECT
     O.Id AS 'ID osobe',
     O.Ime_Prezime AS 'Ime i prezime osobe'
@@ -2212,7 +2238,7 @@ GROUP BY
 HAVING
     COUNT(*) > 3;
 
-# Napiši funkciju koja će za osobu određenu predanim id_jem odrediti sve uloge koje je ta osoba imala u slučajevima
+# 12. Napiši funkciju koja će za osobu određenu predanim id_jem odrediti sve uloge koje je ta osoba imala u slučajevima
 DELIMITER //
 
 CREATE FUNCTION Uloge_Osobe_U_Slucajevima(osoba_id INT) RETURNS VARCHAR(255)
@@ -2256,12 +2282,12 @@ END //
 
 DELIMITER ;
 
-# UPIT KOJI ĆE DOHVATITI SVE OSOBE I NJIHOVE ULOGE U SLUČAJEVIMA
+# 28. UPIT KOJI ĆE DOHVATITI SVE OSOBE I NJIHOVE ULOGE U SLUČAJEVIMA
 SELECT id, ime_prezime, UlogeOsobeUSlucajevima(id) AS uloge
 FROM Osoba;
 
 DELIMITER //
-# Funkcija koja će vratiti je li osoba sumnjiva (već je osumnjičena na nekim slučajevima) ili nije sumnjiva
+# 13. Funkcija koja će vratiti je li osoba sumnjiva (već je osumnjičena na nekim slučajevima) ili nije sumnjiva
     
 CREATE FUNCTION Sumnjivost_Osobe(osoba_id INT) RETURNS VARCHAR(50)
 DETERMINISTIC
@@ -2286,11 +2312,11 @@ END //
 
 DELIMITER ;
 
-# Napiši upit koji će dohvatiti sve osobe, pa i policajce; nije nemoguće da policajac bude kriminalac :) i podatke o njihovoj sumnjivosti
+# 29. Napiši upit koji će dohvatiti sve osobe, pa i policajce; nije nemoguće da policajac bude kriminalac :) i podatke o njihovoj sumnjivosti
 SELECT id, ime_prezime, SumnjivostOsobe(id) AS sumnjivost
 FROM Osoba;
 
-# Napiši funkciju koja će za dani odjel definiran id-jem koji joj prosljeđujemo za argument vratiti broj zaposlenih na tom odjelu u zadnjih 6 mjeseci
+# 14. Napiši funkciju koja će za dani odjel definiran id-jem koji joj prosljeđujemo za argument vratiti broj zaposlenih na tom odjelu u zadnjih 6 mjeseci
 DELIMITER //
 
 CREATE FUNCTION Broj_zaposlenih_6mj(odjel_id INT) 
@@ -2310,13 +2336,13 @@ END //
 DELIMITER ;
 SELECT Broj_zaposlenih_6mj(5);
 
-# Napiši upit koji će vratiti id i naziv odjela koji je imao  najveći broj zaposlenih u zadnjih 6 mjeseci
+# 30. Napiši upit koji će vratiti id i naziv odjela koji je imao  najveći broj zaposlenih u zadnjih 6 mjeseci
 SELECT id, naziv, Broj_zaposlenih_6mj(id) AS Broj_zaposlenih
 FROM odjeli
 ORDER BY Broj_zaposlenih DESC
 LIMIT 1;
 
-# Napiši funkciju koja će za odjel definiran prosljeđenim id-jem dohvatiti broj zaposlenih i broj slučajeva. Zatim
+# 15. Napiši funkciju koja će za odjel definiran prosljeđenim id-jem dohvatiti broj zaposlenih i broj slučajeva. Zatim
 # će računati koliko prosječno ima slučajeva po osobi na tom odjelu
 DELIMITER //
 
@@ -2351,13 +2377,13 @@ DELIMITER ;
 
 SELECT Avg_Slucaj_Osoba_Odjel(5);
 
-#Koristeći ovu funkciju napiši upit za pronalaženje odjela s ispodprosječnim brojem slučajeva po osobi
+#31. Koristeći ovu funkciju napiši upit za pronalaženje odjela s ispodprosječnim brojem slučajeva po osobi
 SELECT naziv AS Nazivi_ispodprosječnih_odjela
 FROM Odjeli
 WHERE Avg_Slucaj_Osoba_Odjel(id) < 
     (SELECT AVG(Avg_Slucaj_Osoba_Odjel(id)) FROM Odjeli);
 
-# Na isti način napiši i upit za pronalaženje odjela s iznadprosječnim brojem slučajeva po osobi
+# 32. Na isti način napiši i upit za pronalaženje odjela s iznadprosječnim brojem slučajeva po osobi
 -- Upit za pronalaženje odjela s ispodprosječnim brojem slučajeva po osobi
 SELECT id, naziv
 FROM Odjeli
@@ -2366,8 +2392,8 @@ WHERE Avg_Slucaj_Osoba_Odjel(id) >
 	
 #########################
 # KORISNICI
-/*# KORISNICI (autentifikacija/autorizacija)
--- Kreiranje admin korisnika
+/*
+1)-- Kreiranje admin korisnika
 CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin_password';
 GRANT ALL PRIVILEGES ON *.* TO 'admin'@'localhost' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
@@ -2380,7 +2406,7 @@ FLUSH PRIVILEGES;
 DROP USER 'admin'@'localhost';
 
 
--- Kreiranje HR korisnika
+2)-- Kreiranje HR korisnika
 CREATE USER 'hr'@'localhost' IDENTIFIED BY 'hr_password';
 GRANT SELECT, INSERT, UPDATE, DELETE ON Policija.Radno_mjesto TO 'hr'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON Policija.Odjeli TO 'hr'@'localhost';
@@ -2394,7 +2420,7 @@ FLUSH PRIVILEGES;
 -- brisanje korisnika
 DROP USER 'hr'@'localhost';
 
-# Napravi korisnika za običnu fizičku osobu koja nije djelatnik policije i ima pristup samo osnovnijim, neklasificiranim tablicama
+# 3) Napravi korisnika za običnu fizičku osobu koja nije djelatnik policije i ima pristup samo osnovnijim, neklasificiranim tablicama
 CREATE USER 'fizicka_osoba'@'localhost' IDENTIFIED BY 'fizicka_osoba_password';
 GRANT SELECT ON Policija.Podrucje_uprave TO 'fizicka_osoba'@'localhost';
 GRANT SELECT ON Policija.Mjesto TO 'fizicka_osoba'@'localhost';
@@ -2412,7 +2438,7 @@ FLUSH PRIVILEGES;
 -- brisanje korisnika
 DROP USER 'fizicka_osoba'@'localhost';
 
-# Napravi korisnika 'detektiv' (ne znan dali je to egzaktan naziv) koji će biti zadužen za prikupljanje dokaza na slučajevima, predmete, sredstva_utvrđivanja_istine i sastavljanje izvještaja
+# 4)Napravi korisnika 'detektiv' (ne znan dali je to egzaktan naziv) koji će biti zadužen za prikupljanje dokaza na slučajevima, predmete, sredstva_utvrđivanja_istine i sastavljanje izvještaja
 CREATE USER 'detektiv'@'localhost' IDENTIFIED BY 'detektiv_password';
 GRANT SELECT, INSERT, UPDATE, DELETE ON Policija.Predmet TO 'detektiv'@'localhost';
 GRANT SELECT, INSERT, UPDATE, DELETE ON Policija.Slucaj TO 'detektiv'@'localhost';
