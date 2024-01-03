@@ -974,7 +974,7 @@ LIMIT 1;
 CREATE VIEW osoba_prometna_nesreca AS
 SELECT osoba.*, COUNT(*) AS broj_prometnih_nesreca
 FROM osoba INNER JOIN slucaj ON osoba.id=slucaj.id_pocinitelj INNER JOIN evidencija_dodagaja ON slucaj.id=evidencija_dogadaja.id_slucaj
-WHERE evidencija_dogadaja.datum_vrijeme <= (NOW() - INTERVAL 1 YEAR) AND COUNT(*)>2 AND slucaj.naziv LIKE '%prometna nesreca%'
+WHERE evidencija_dogadaja.datum_vrijeme >= (NOW() - INTERVAL 1 YEAR) AND COUNT(*)>2 AND slucaj.naziv LIKE '%prometna nesreca%'
 GROUP BY id_osoba;
 
 SELECT *
