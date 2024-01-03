@@ -616,9 +616,9 @@ END //
 -- Ispiši prosječan broj godina osoba koje su prijavile digitalno nasilje. 
 
 
-SELECT AVG(YEAR(slucaj.pocetak)-YEAR(osoba.datum_rodenja)) AS prosjecan_broj_godina
-FROM slucaj INNER JOIN osoba ON slucaj.id_izvjestitelj=osoba.id
-WHERE slucaj.naziv LIKE '%digitalno nasilje%';
+SELECT AVG(YEAR(S.pocetak)-YEAR(O.datum_rodenja)) AS prosjecan_broj_godina
+FROM slucaj S INNER JOIN osoba O ON S.id_izvjestitelj=O.id
+WHERE S.naziv LIKE '%digitalno nasilje%';
 
 -- Prikaži osobu čiji je nestanak posljednji prijavljen
 
