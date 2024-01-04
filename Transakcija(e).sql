@@ -2,10 +2,10 @@
 #slučajeva novom 
 #aktivnom slučaju. Rješenje treba osigurati dosljednost podataka i minimalno opterećenje pasa.
 /*
-  U ovom zadatku koristiš izolacijski nivo "REPEATABLE READ" kako bi osigurao dosljednost podataka tijekom trajanja transakcije.
-  Budući da analiziraš trenutačnu aktivnost pasa i dodjelu pasa slučajevima, važno je da podaci o psima ostanu nepromijenjeni kako bi se izbjegle netočnosti
-  u dodjeli pasa novim slučajevima. "REPEATABLE READ" sprječava čitanje prljavih podataka (dirty reads) i neponovljivih čitanja (non-repeatable reads), 
-  čime se održava konzistentnost podataka i osigurava pouzdanost u obradi podataka u okviru transakcije. */
+#  U ovom zadatku koristiš izolacijski nivo "REPEATABLE READ" kako bi osigurao dosljednost podataka tijekom trajanja transakcije.
+#  Budući da analiziraš trenutačnu aktivnost pasa i dodjelu pasa slučajevima, važno je da podaci o psima ostanu nepromijenjeni kako bi se izbjegle netočnosti
+#  u dodjeli pasa novim slučajevima. "REPEATABLE READ" sprječava čitanje prljavih podataka (dirty reads) i neponovljivih čitanja (non-repeatable reads), 
+#  čime se održava konzistentnost podataka i osigurava pouzdanost u obradi podataka u okviru transakcije. */
   START TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 
 -- 1. Provjeri koliko slučajeva ima svaki aktivan pas
