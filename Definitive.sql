@@ -1930,14 +1930,14 @@ BEGIN
     
     SELECT Slucaj.Naziv INTO slucaj_naziv
     FROM Slucaj
-    WHERE Slucaj.id_dokaz= predmet_id;
+    WHERE Slucaj.id_dokaz= id_predmet;
     
     
     SELECT Osoba.Ime_Prezime INTO osoba_ime_prezime
     FROM Osoba
     INNER JOIN Slucaj ON Osoba.Id = Slucaj.id_pocinitelj
     WHERE Slucaj.id_dokaz
-    = predmet_id;
+    = id_predmet;
     
     
     SET rezultat = CONCAT('Odabrani je predmet dokaz u slučaju: ', slucaj_naziv, ', gdje je osumnjičena osoba: ', osoba_ime_prezime);
@@ -1956,7 +1956,7 @@ SELECT
 FROM Predmet
 INNER JOIN Slucaj ON Predmet.ID = Slucaj.id_dokaz
 INNER JOIN Osoba ON Slucaj.id_pocinitelj = Osoba.ID
-WHERE Predmet.ID = 5;
+WHERE Predmet.Id = 5;
 
 
 # 4. Napravi funkciju koja će za argument primati sredstvo utvrđivanja istine, zatim će prebrojiti u koliko je slučajeva to sredstvo korišteno, prebrojit će koliko je slučajeva od tog broja riješeno, te će na temelju ta 2 podatka izračunati postotak rješenosti slučajeva gdje se odabrano sredstvo koristi
