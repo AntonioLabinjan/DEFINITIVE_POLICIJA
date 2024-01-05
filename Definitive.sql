@@ -890,7 +890,7 @@ FROM
 LEFT JOIN
     Slucaj S ON O.ID = S.id_voditelj
 GROUP BY
-    Voditelj;
+    Voditelj; # grupiramo po aliasu
 
 # 10. Napravi POGLED koji će prikazivati statistiku zapljena za svaku vrstu kaznenog djela (prosjek, minimum, maksimum  (za vrijednosti) i broj predmeta)
 CREATE VIEW StatistikaZapljenaPoKaznenomDjelu AS
