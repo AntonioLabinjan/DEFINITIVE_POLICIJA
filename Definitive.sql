@@ -2610,7 +2610,7 @@ WHERE YEAR(datum_vrijeme) = 2021;
 
 # Zatvaranje transakcije
 COMMIT;
-
+############################################################################
 # 4) Napravi transakciju koja će pomoću procedure dodati 20 novih kažnjivih djela
 SET SESSION TRANSACTION ISOLATION LEVEL 
 READ COMMITTED;
@@ -2638,8 +2638,50 @@ CALL Dodaj_Novo_Kaznjivo_Djelo('Zlostavljanje životinja u grupi', 'Nečovječno
 CALL Dodaj_Novo_Kaznjivo_Djelo('Dijamantna pljačka', 'Oružana pljačka draguljarnice s namjerom krađe dijamanata.', 8);
 
 COMMIT;
-	#DEFINITIVNO STANJE:
-# 18 TABLES (+ još 5 temporary) (UVJET JE 15)
+###########################################################################
+# 5) -- Napravi transakciju koja će omogućiti pregled svih službenih vozila. Neka se stupac id_vlasnik pretvori u stupac vlasnik tipa VARCHAR zato što je
+-- vlasnik svih službenih vozila MUP
+-- Postavljanje izolacijskog nivoa na REPEATABLE READ
+-- Osiguraj da se prilikom izvođenja transakcije ne obriše ili izmjeni niti jedno od službenih vozila (zato imamo repeatable read i zaključavanje)
+SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
+START TRANSACTION;
+
+-- Dobivanje zaključavanja za službena vozila
+SELECT * FROM Vozilo WHERE sluzbeno_vozilo = 1 FOR UPDATE NOWAIT; -- pokušavamo zaključati retke, ali ako su već zaključani ne čekamo, nego odmah vraća grešku i prekine transakciju
+
+-- Kreiranje privremene tablice Pregled_službenih_vozila
+CREATE TEMPORARY TABLE IF NOT EXISTS Pregled_službenih_vozila (
+    id INT,
+    marka VARCHAR(255),
+    model VARCHAR(255),
+    registracija VARCHAR(20),
+    godina_proizvodnje INT,
+    sluzbeno_vozilo BOOLEAN,
+    vlasnik VARCHAR(255)
+);
+
+-- Kopiranje podataka o službenim vozilima u privremenu tablicu
+INSERT INTO Pregled_službenih_vozila (id, marka, model, registracija, godina_proizvodnje, sluzbeno_vozilo, vlasnik)
+SELECT id, marka, model, registracija, godina_proizvodnje, sluzbeno_vozilo, 'Ministarstvo Unutarnjih Poslova' AS vlasnik
+FROM Vozilo
+WHERE sluzbeno_vozilo = 1;
+
+-- Promjena strukture originalne tablice Vozilo
+ALTER TABLE Vozilo
+MODIFY COLUMN id_vlasnik vlasnik VARCHAR(255) NOT NULL;
+
+-- Postavljanje vlasnika na 'Ministarstvo Unutarnjih Poslova' za službena vozila
+UPDATE Vozilo
+SET vlasnik = 'Ministarstvo Unutarnjih Poslova'
+WHERE sluzbeno_vozilo = 1;
+
+-- Zatvaranje transakcije
+COMMIT;
+
+
+
+#DEFINITIVNO STANJE:
+# 18 TABLES (+ još 10 temporary) (UVJET JE 15)
 # 20 TRIGGERS (NI SPECIFICIRANO U UVJETIMA ALI VJEROJATNO JE 5)
 # 17 REGULAR QUERIES (UVJET JE 15)
 # + 15 FUNCTIONAL QUERIES (ovo ne znači da nan 15 upita od 17 funkcionira, nego da imamo 15 upita povezanih s funkcijama, čisto da ne bude zabune :)) (NEMA TEGA U UVJETIMA)
@@ -2650,5 +2692,5 @@ COMMIT;
 # 31 PROCEDURES + 2 SCHEDULED EVENTS (UVJET JE 10, EVENTE NE SPOMINJU...TO JE ROMEOV PREMIUM TIP :))
 # 4 USERS (NE SPOMINJU U UVJETIMA)
 # 33 INDEXES (NE SPOMINJU U UVJETIMA)
-# 4 TRANSAKCIJE (tega će bit još)
-# Tu još samo fale podaci i transakcije i moremo predat projekt
+# 5 TRANSAKCIJA (tega će bit još)
+# Tu još samo fale neki podaci i transakcije i moremo predat projekt
