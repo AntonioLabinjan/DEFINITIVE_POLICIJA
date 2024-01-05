@@ -330,7 +330,7 @@ BEFORE DELETE ON Predmet
 FOR EACH ROW
 BEGIN
     DECLARE aktivan INT;
-    SELECT COUNT(*) INTO aktivan FROM Slucaj WHERE id_dokaz = OLD.id AND status != 'Završeno';
+    SELECT COUNT(*) INTO aktivan FROM Slucaj WHERE id_dokaz = OLD.id AND status != 'Riješen';
     
     IF aktivan > 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -347,7 +347,7 @@ BEFORE DELETE ON Osoba
 FOR EACH ROW
 BEGIN
     DECLARE je_pocinitelj INT;
-    SELECT COUNT(*) INTO je_pocinitelj FROM Slucaj WHERE id_pocinitelj = OLD.id AND status != 'Završeno';
+    SELECT COUNT(*) INTO je_pocinitelj FROM Slucaj WHERE id_pocinitelj = OLD.id AND status != 'Riješen';
     
     IF je_pocinitelj > 0 THEN
         SIGNAL SQLSTATE '45000'
@@ -423,7 +423,7 @@ CREATE TRIGGER au_slucaj_arhiva
 AFTER UPDATE ON Slucaj
 FOR EACH ROW
 BEGIN
-    IF NEW.Status = 'Završeno' THEN
+    IF NEW.Status = 'Riješen' THEN
         INSERT INTO Arhiva (id_slucaj) VALUES (OLD.ID);
         DELETE FROM Slucaj WHERE ID = OLD.ID;
     END IF;
@@ -674,7 +674,7 @@ SELECT S.naziv, KD.naziv AS kaznjivo_djelo
 	FROM Slucaj S
 	INNER JOIN Kaznjiva_djela_u_slucaju KDS ON S.id = KDS.id_slucaj
 	INNER JOIN Kaznjiva_djela KD ON KDS.id_kaznjivo_djelo= KD.id
-	WHERE S.status = 'Aktivan';
+	WHERE S.status != 'Riješen';
 
 
 # 8. Izračunajmo iznos zapljene za svaki pojedini slučaj
@@ -765,7 +765,7 @@ SELECT Z.id AS id_zaposlenika, O.ime_prezime AS ime_prezime_zaposlenika, COUNT(S
 		(SELECT MAX(broj_slucajeva)
     			FROM (
         			SELECT COUNT(id) AS broj_slucajeva
-        				FROM Slucaj - smijem li i ovdje S umjesto Slucaj?
+        				FROM Slucaj 
         				GROUP BY id_voditelj
     		) AS max_voditelj
 	);
@@ -882,9 +882,9 @@ CREATE VIEW VoditeljiSlucajeviPregled AS
 SELECT
     O.Ime_Prezime AS Voditelj,
     COUNT(S.ID) AS UkupanBrojSlucajeva,
-    SUM(CASE WHEN S.Status = 'Završeno' THEN 1 ELSE 0 END) AS UkupanBrojRijesenihSlucajeva,
+    SUM(CASE WHEN S.Status = 'Riješen' THEN 1 ELSE 0 END) AS UkupanBrojRijesenihSlucajeva,
     SUM(CASE WHEN S.Status = 'Aktivan' THEN 1 ELSE 0 END) AS UkupanBrojNerijesenihSlucajeva,
-    (SUM(CASE WHEN S.Status = 'Završeno' THEN 1 ELSE 0 END) / COUNT(S.ID)) * 100 AS PostotakRjesenosti
+    (SUM(CASE WHEN S.Status = 'Riješen' THEN 1 ELSE 0 END) / COUNT(S.ID)) * 100 AS PostotakRjesenosti
 FROM
     Osoba O
 LEFT JOIN
@@ -957,8 +957,8 @@ SELECT
     P.Oznaka AS OznakaPsa,
     O.Ime_Prezime AS Vlasnik,
     COUNT(S.Id) AS BrojSlucajeva,
-    SUM(CASE WHEN S.Status = 'Završeno' THEN 1 ELSE 0 END) AS BrojRijesenih,
-    (SUM(CASE WHEN S.Status = 'Završeno' THEN 1 ELSE 0 END) / COUNT(S.Id) * 100) AS PostotakRjesenosti
+    SUM(CASE WHEN S.Status = 'Riješen' THEN 1 ELSE 0 END) AS BrojRijesenih,
+    (SUM(CASE WHEN S.Status = 'Riješen' THEN 1 ELSE 0 END) / COUNT(S.Id) * 100) AS PostotakRjesenosti
 FROM
     Pas AS P
 LEFT JOIN Slucaj AS S ON P.Id = S.id_pas
@@ -1796,7 +1796,7 @@ BEGIN
     SELECT O.Id, S.zavrsetak
     FROM Osoba O
     JOIN Slucaj S ON O.id = S.id_pocinitelj
-    WHERE S.status = 'Zavrsen';
+    WHERE S.status = 'Riješen';
 
     -- Postavimo handler za kraj
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
