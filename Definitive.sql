@@ -2441,7 +2441,18 @@ INNER JOIN (
 ) AS Podupit2 ON V.Registracija = Podupit2.Registracija
 WHERE Podupit2.count > (SELECT Prosjek FROM Prosjek_Pojavljivanja);
 
+# Vozila koja su se pojavila u više od 3 slučaja u zadnjih 6 mjeseci
 
+SELECT V.Registracija, Provjera_vozila(V.Registracija) AS Status_Vozila
+FROM Vozilo V
+INNER JOIN (
+    SELECT Vozilo.Registracija, COUNT(*) AS count
+    FROM Slucaj
+    INNER JOIN Vozilo ON Slucaj.id_pocinitelj = Vozilo.id_vlasnik
+    WHERE Slucaj.Pocetak > DATE_SUB(NOW(), INTERVAL 6 MONTH)
+    GROUP BY Vozilo.Registracija
+) AS Izracun ON V.Registracija = Podupit.Registracija
+WHERE Izracun.count > 3;
 
 
 # 6. Funkcija koja za argument prima id podrucja uprave i vraća broj mjesta u tom području te naziv svih mjesta u 1 stringu
