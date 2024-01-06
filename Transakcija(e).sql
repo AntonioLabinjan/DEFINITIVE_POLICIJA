@@ -302,7 +302,7 @@ SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;
 START TRANSACTION;
 
 # Dohvaćanje ID-a osobe koja će biti autor izvještaja
-SET @id_autor = (SELECT id FROM Osoba WHERE ime = 'ImeOsobe' AND prezime = 'PrezimeOsobe' LIMIT 1);
+SET @id_autor = (SELECT id FROM Osoba WHERE ime_prezime = 'Ime_Prezime' LIMIT 1);
 
 # Dohvaćanje ID-a slučaja za koji ćemo kreirati izvještaj
 SET @id_slucaj = (SELECT id FROM Slucaj WHERE naziv = 'NazivSlucaja' LIMIT 1);
